@@ -19,8 +19,8 @@ weight_file = os.path.join(datadir, 'lm_weights.hdf5')
 batcher = Batcher(vocab_file, 50)
 
 # Input placeholders to the biLM.
-context_character_ids = tf.placeholder('int32', shape=(None, None, 50))
-question_character_ids = tf.placeholder('int32', shape=(None, None, 50))
+context_character_ids = tf.compat.v1.placeholder('int32', shape=(None, None, 50))
+question_character_ids = tf.compat.v1.placeholder('int32', shape=(None, None, 50))
 
 # Build the biLM graph.
 bilm = BidirectionalLanguageModel(options_file, weight_file)
@@ -36,7 +36,7 @@ question_embeddings_op = bilm(question_character_ids)
 # We use the same ELMo weights for both the question and context
 # at each of the input and output.
 elmo_context_input = weight_layers('input', context_embeddings_op, l2_coef=0.0)
-with tf.variable_scope('', reuse=True):
+with tf.compat.v1.variable_scope('', reuse=True):
     # the reuse=True scope reuses weights from the context for the question
     elmo_question_input = weight_layers(
         'input', question_embeddings_op, l2_coef=0.0
@@ -45,7 +45,7 @@ with tf.variable_scope('', reuse=True):
 elmo_context_output = weight_layers(
     'output', context_embeddings_op, l2_coef=0.0
 )
-with tf.variable_scope('', reuse=True):
+with tf.compat.v1.variable_scope('', reuse=True):
     # the reuse=True scope reuses weights from the context for the question
     elmo_question_output = weight_layers(
         'output', question_embeddings_op, l2_coef=0.0
@@ -62,9 +62,9 @@ tokenized_question = [
     ['What', 'are', 'biLMs', 'useful', 'for', '?'],
 ]
 
-with tf.Session() as sess:
+with tf.compat.v1.Session() as sess:
     # It is necessary to initialize variables once before running inference.
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf.compat.v1.global_variables_initializer())
 
     # Create batches of data.
     context_ids = batcher.batch_sentences(tokenized_context)

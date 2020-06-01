@@ -41,7 +41,7 @@ token_embedding_file = 'elmo_token_embeddings.hdf5'
 dump_token_embeddings(
     vocab_file, options_file, weight_file, token_embedding_file
 )
-tf.reset_default_graph()
+tf.compat.v1.reset_default_graph()
 
 
 
@@ -50,8 +50,8 @@ tf.reset_default_graph()
 batcher = TokenBatcher(vocab_file)
 
 # Input placeholders to the biLM.
-context_token_ids = tf.placeholder('int32', shape=(None, None))
-question_token_ids = tf.placeholder('int32', shape=(None, None))
+context_token_ids = tf.compat.v1.placeholder('int32', shape=(None, None))
+question_token_ids = tf.compat.v1.placeholder('int32', shape=(None, None))
 
 # Build the biLM graph.
 bilm = BidirectionalLanguageModel(
@@ -72,7 +72,7 @@ question_embeddings_op = bilm(question_token_ids)
 # We use the same ELMo weights for both the question and context
 # at each of the input and output.
 elmo_context_input = weight_layers('input', context_embeddings_op, l2_coef=0.0)
-with tf.variable_scope('', reuse=True):
+with tf.compat.v1.variable_scope('', reuse=True):
     # the reuse=True scope reuses weights from the context for the question
     elmo_question_input = weight_layers(
         'input', question_embeddings_op, l2_coef=0.0
@@ -81,16 +81,16 @@ with tf.variable_scope('', reuse=True):
 elmo_context_output = weight_layers(
     'output', context_embeddings_op, l2_coef=0.0
 )
-with tf.variable_scope('', reuse=True):
+with tf.compat.v1.variable_scope('', reuse=True):
     # the reuse=True scope reuses weights from the context for the question
     elmo_question_output = weight_layers(
         'output', question_embeddings_op, l2_coef=0.0
     )
 
 
-with tf.Session() as sess:
+with tf.compat.v1.Session() as sess:
     # It is necessary to initialize variables once before running inference.
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf.compat.v1.global_variables_initializer())
 
     # Create batches of data.
     context_ids = batcher.batch_sentences(tokenized_context)
