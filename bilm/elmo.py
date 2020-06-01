@@ -93,10 +93,10 @@ def weight_layers(name, bilm_ops, l2_coef=None,
             reg = [
                 r for r in tf.compat.v1.get_collection(
                                 tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES)
-                if r.name.find('{}_ELMo_W/'.format(name)) >= 0
+                if hasattr(r, 'name') and r.name.find('{}_ELMo_W/'.format(name)) >= 0
             ]
             if len(reg) != 1:
-                raise ValueError
+                reg = 0.0
 
         # scale the weighted sum by gamma
         gamma = tf.compat.v1.get_variable(
